@@ -9,6 +9,8 @@ Repositório com minha jornada de estudos para me tornar Data Engineer.
 - `projetos/` — Projetos práticos integrando os conceitos
 - `notas/` — Anotações e resumos teóricos
 
+- teste para ver diff no GitHub
+
 ## Plano de estudos
 
 **Mês 1 — SQL Avançado**
