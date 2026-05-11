@@ -1,15 +1,22 @@
-Qual é a ordem de execução do SQL?;FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT
-Por que não dá para usar alias do SELECT no WHERE?;Porque WHERE é executado antes do SELECT na ordem lógica. O alias ainda não existe quando WHERE roda.
-Qual a diferença entre INNER JOIN e LEFT JOIN?;INNER retorna só linhas que casam dos dois lados. LEFT retorna todas da esquerda + match da direita (NULL onde não casa).
-O que acontece se eu filtrar coluna da tabela direita no WHERE de um LEFT JOIN?;O LEFT JOIN vira INNER JOIN sem aviso. NULL nunca passa em filtros, então linhas sem match são eliminadas.
-Quando usar filtro no ON vs no WHERE?;ON: filtros que devem ser aplicados durante a junção (preserva LEFT). WHERE: filtros pós-junção (descarta NULL). Em INNER JOIN, tanto faz para resultado.
-Qual a regra do GROUP BY?;Toda coluna no SELECT precisa estar no GROUP BY ou dentro de função de agregação.
-Por que agrupar por PK e não só por nome?;Nomes podem ter duplicidade (dois "João Silva"). Agrupar só por nome soma valores de pessoas diferentes. PK garante unicidade.
-Diferença entre WHERE e HAVING?;WHERE filtra linhas antes da agregação. HAVING filtra grupos depois da agregação.
-Posso usar alias do SELECT no HAVING?;Não em PostgreSQL (precisa repetir a expressão). Sim em MySQL. PostgreSQL segue o padrão SQL estrito.
-COUNT(*) vs COUNT(coluna)?;COUNT(*) conta todas as linhas. COUNT(coluna) ignora NULLs. Em LEFT JOIN, use COUNT(coluna_direita) para contar 0 corretamente.
-Quais agregações retornam NULL quando vazias?;SUM, AVG, MAX, MIN retornam NULL. COUNT retorna 0. Por isso COALESCE é frequente com SUM/AVG, raramente com COUNT.
-O que é COALESCE?;Função que retorna o primeiro valor não-NULL da lista de argumentos. Ex: COALESCE(NULL, NULL, 5) = 5.
-Bug crítico ao juntar duas tabelas-filhas (ex: itens_pedido e devolucoes)?;Cada linha de uma se combina com cada linha da outra que tenha mesma chave-pai, multiplicando e inflando SUMs/COUNTs. Solução: agregar cada filha separadamente em subquery/CTE e juntar os agregados.
-Por que AVG(a*b) é diferente de AVG(a)*AVG(b)?;A primeira calcula a média do produto linha a linha (correto). A segunda multiplica médias separadas (matematicamente diferente).
-Qual a sintaxe correta de COUNT com valores únicos?;COUNT(DISTINCT coluna). Sem parênteses internos no DISTINCT. Use quando quer "quantos diferentes de X existem".
+O que faz a cláusula SELECT?;Define quais colunas e expressões retornar no resultado de uma query.
+O que faz a cláusula WHERE?;Filtra linhas individuais antes de qualquer agrupamento ou agregação.
+O que faz a cláusula ORDER BY?;Ordena o resultado final por uma ou mais colunas. Padrão é ascendente (ASC); para decrescente usa DESC.
+O que faz DISTINCT em uma query?;Remove linhas duplicadas do resultado, considerando todas as colunas do SELECT.
+O que é INNER JOIN?;Retorna apenas linhas que têm correspondência (match) em ambas as tabelas.
+O que é LEFT JOIN?;Retorna todas as linhas da tabela à esquerda, mais as correspondências da direita. Onde não há match, colunas da direita ficam NULL.
+O que é FULL JOIN?;Retorna todas as linhas de ambas as tabelas, com NULL onde não há correspondência de um dos lados.
+O que é CROSS JOIN?;Produz o produto cartesiano: combina cada linha de A com cada linha de B. Resultado: linhas_A x linhas_B.
+Qual a diferença entre a cláusula ON e WHERE em um JOIN?;ON define a condição de junção entre as tabelas (aplicada durante o join). WHERE filtra o resultado após o join estar montado.
+Para que serve GROUP BY?;Agrupa linhas que compartilham valores em uma ou mais colunas, permitindo aplicar funções de agregação a cada grupo.
+Quais são as 5 funções de agregação básicas?;COUNT, SUM, AVG, MIN, MAX.
+O que faz HAVING?;Filtra grupos formados pelo GROUP BY com base em condições de agregação. Roda depois do GROUP BY e antes do SELECT.
+O que faz COUNT(*)?;Conta todas as linhas do grupo, incluindo linhas com valores NULL.
+O que faz COUNT(coluna)?;Conta apenas as linhas onde a coluna informada não é NULL.
+O que faz COUNT(DISTINCT coluna)?;Conta a quantidade de valores únicos não-nulos da coluna no grupo.
+Como NULL se comporta em comparações com =?;NULL nunca é igual a nada, nem a si mesmo. Toda comparação com NULL usando = retorna desconhecido (não TRUE). Por isso usa-se IS NULL ou IS NOT NULL.
+Qual o comportamento de SUM, AVG, MAX, MIN em conjunto vazio?;Retornam NULL (não zero). Por isso usa-se COALESCE para tratar o resultado quando se quer um valor padrão.
+O que faz a função COALESCE?;Recebe múltiplos argumentos e retorna o primeiro que não for NULL. Sintaxe: COALESCE(valor1, valor2, ..., default).
+Qual a ordem lógica de execução das cláusulas SQL?;FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.
+Por que a ordem de execução importa na prática?;Determina o que pode ser referenciado em cada cláusula. Por exemplo: aliases criados no SELECT não existem no WHERE (que roda antes), mas existem no ORDER BY (que roda depois).
+Qual a diferença prática entre WHERE e HAVING?;WHERE filtra linhas antes da agregação; HAVING filtra grupos depois. Use WHERE para filtros sobre colunas brutas e HAVING para filtros sobre resultados de funções de agregação.
+Em PostgreSQL, posso usar alias do SELECT no HAVING?;Não. HAVING é executado antes do SELECT, então o alias ainda não existe. A expressão de agregação precisa ser repetida no HAVING.
